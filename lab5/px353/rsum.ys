@@ -1,0 +1,43 @@
+#Name: Pengdi Xia
+#EID: px353
+
+# Execution begins at address 0
+	.pos 0
+	irmovq 	stack, %rsp	# Set up stack pointer
+	call 	main		# Execute main program
+	halt			# Terminate program
+
+#sample linked list
+	.align 8
+ele1:
+	.quad 	0x00a
+	.quad 	ele2
+ele2:
+	.quad 	0x0b0
+	.quad 	ele3
+ele3:
+	.quad 	0xc00
+	.quad 	0
+
+main:	irmovq 	ele1,%rdi
+	call 	rsum		# call sum
+	ret
+
+# long sum(long *start, long count)
+# start in %rdi, count in %rsi
+rsum:	andq 	%rdi,%rdi	# test 0
+	je	End		# Stop when 0 
+	mrmovq 	(%rdi),%r9	# temp=first element
+	pushq	%r9		# save the data
+	mrmovq	8(%rdi),%rdi	# move the pointer
+	call 	rsum		# recursive call
+	popq	%r9		# pop the val
+	addq	%r9,%rax	# val+rest
+	ret
+	
+End:	irmovq	$0,%rax		# if(!ls) true
+	ret
+
+# Stack starts here and grows to lower addresses
+	.pos 0x200
+stack:
