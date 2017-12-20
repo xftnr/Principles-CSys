@@ -209,18 +209,17 @@ int logicalShift(int x, int n) {
 *   Rating: 4
 */
 int bitCount(int x) {
+  int mask1, mask2;
   //build the mask 0x1111111111
-  int mask1 = 0x11;
-  mask1 = (mask1 << 8) + 0x55;
-	mask1 = (mask1 << 8) + 0x55;
-	mask1 = (mask1 << 8) + 0x55;
+  mask1 = 0x11;
+  mask1 = (mask1 << 8) + mask1;
+	mask1 = (mask1 << 16) + mask1;
   //add each 4 bit togather
   x=(x&mask1)+((x>>1)&mask1)+((x>>2)&mask1)+((x>>3)&mask1);
   //build mask2 to add each 8 bit
-  int mask2 = 0x0F;
-  mask2 = (mask2 << 8) + 0x0F;
-  mask2 = (mask2 << 8) + 0x0F;
-  mask2 = (mask2 << 8) + 0x0F;
+  mask2 =0x0f;
+  mask2 = (mask2 << 8) + mask2;
+  mask2 = (mask2 << 16) + mask2;
   x=((x>>4)+x)&mask2;
   //no mask needed,since total wont beyond the 32
   x=((x>>8)+x);
@@ -331,23 +330,24 @@ int isLessOrEqual(int x, int y) {
 *   Rating: 4
 */
 int ilog2(int x) {
+  int mask1, index1, mask2, index2, index3, index4,index5, sum;
   //using the binary to solve the question
   //define the MS 1 at left or right side of 16
-  int mask1 = (~0)<<16;
-  int index1 = (!!(x&mask1))<<4;
+  mask1 = (~0)<<16;
+  index1 = (!!(x&mask1))<<4;
   x=x>>index1;
   //define the MS 1 at left or right side of 24 or 8
-  int mask2 = 0xff<<8;
-  int index2 = (!!(x&mask2))<<3;
+  mask2 = 0xff<<8;
+  index2 = (!!(x&mask2))<<3;
   x=x>>index2;
   //keep dividing
-  int index3 = (!!(x&0xf0))<<2;
+  index3 = (!!(x&0xf0))<<2;
   x=x>>index3;
-  int index4 = (!!(x&12))<<1;
+  index4 = (!!(x&12))<<1;
   x=x>>index4;
-  int index5 = (!!(x&2));
+  index5 = (!!(x&2));
   //sum all the index
-  int sum = index1+index2+index3+index4+index5;
+  sum = index1+index2+index3+index4+index5;
   return sum;
 }
 /*
@@ -382,6 +382,11 @@ unsigned float_neg(unsigned uf) {
 *   Rating: 4
 */
 unsigned float_i2f(int x) {
+  unsigned sign = x&0x80000000;
+  unsigned man;
+  unsigned temp;
+  unsigned count = 0;
+  unsigned rod = 0;
   //special case 0
   if(x==0){
     return 0;
@@ -389,8 +394,6 @@ unsigned float_i2f(int x) {
   if(x==0x80000000){
     return 0xcf000000;
   }
-  unsigned sign = x&0x80000000;
-  unsigned man;
   //to get the mantissa for absolute value
   if(sign){
     man = ~x+1;
@@ -399,9 +402,6 @@ unsigned float_i2f(int x) {
     man = x;
   }
   //find the first vaild bit
-  unsigned temp;
-  unsigned count = 0;
-  unsigned rod = 0;
   while(1){
     temp = man;
     man=man<<1;

@@ -7,9 +7,12 @@
 # Name:Pengdi Xia
 # EID:px353
 # Describe how and why you modified the baseline code.
-# I use the iaddq to void use the 2 register and cause the hazard
-# 
-
+#
+# First, I use the iaddq instructment
+# Second, since there are 5 stage in y86 pipeline, I use pull out
+# five elements in the list and store in 5 different register.
+# After five move in register, the first date have been writen back
+# to the register. So I could use it copy to dest without bubble.
 ##################################################################
 # Do not modify this portion
 # Function prologue.
@@ -21,58 +24,43 @@ ncopy:
 	# Loop header
 	xorq 	%rax,%rax	# count = 0;
 	rrmovq	%rdx,%rcx
-	iaddq	$-8,%rcx	# determine there are more than
-				# 8 elements in src
+	iaddq	$-5,%rcx	# determine there are more than
+				# 5 elements in src
 	jl 	Mid		
 
-loop8:
-	mrmovq 	(%rdi), %r8	# computer 8 src first
+loop5:
+	mrmovq 	(%rdi), %r8	# computer 5 src first
         mrmovq 	8(%rdi), %r9
         mrmovq 	16(%rdi), %r10
         mrmovq 	24(%rdi), %r11
         mrmovq 	32(%rdi), %r12
-        mrmovq 	40(%rdi), %r13
-        mrmovq 	48(%rdi), %r14
-        mrmovq 	56(%rdi), %rbx
-        rmmovq 	%r8, (%rsi)	# save this 8 src to dst
+        rmmovq 	%r8, (%rsi)	# save this 5 src to dst
         rmmovq 	%r9, 8(%rsi)
         rmmovq 	%r10, 16(%rsi)
         rmmovq 	%r11, 24(%rsi)
         rmmovq 	%r12, 32(%rsi)
-        rmmovq 	%r13, 40(%rsi)
-        rmmovq 	%r14, 48(%rsi)
-        rmmovq 	%rbx, 56(%rsi)
 
-r8:   	andq 	%r8, %r8     	# val <= 0?
+r8:   andq 	%r8, %r8     	# val <= 0?
         jle 	r9:        	# determine the every element in src
         iaddq 	$1, %rax      	# count++, %rax         
-r9:   	andq 	%r9, %r9          
+r9:   andq 	%r9, %r9          
         jle 	r10:
         iaddq 	$1, %rax
-r10:   	andq 	%r10, %r10
+r10:   andq 	%r10, %r10
         jle 	r11:
         iaddq 	$1, %rax
-r11:   	andq 	%r11, %r11
+r11:   andq 	%r11, %r11
         jle 	r12:
         iaddq 	$1, %rax
-r12:   	andq 	%r12, %r12
-        jle 	r13:
-        iaddq 	$1, %rax
-r13:   	andq 	%r13, %r13
-        jle 	r14:
-        iaddq 	$1, %rax
-r14:   	andq 	%r14, %r14
-        jle 	rbx:
-        iaddq 	$1, %rax
-rbx:   	andq 	%rbx, %rbx
-        jle 	Npos8:
+r12:   andq 	%r12, %r12
+        jle 	Npos5:
         iaddq 	$1, %rax
 
-Npos8:	iaddq	$64,%rdi	# src++
-	iaddq 	$64,%rsi	# dst++
-	iaddq	$-8,%rdx
-	iaddq	$-8,%rcx
-	jge	loop8		# if there are still more than 8 elemets
+Npos5:	iaddq	$40,%rdi	# src++
+	iaddq 	$40,%rsi	# dst++
+	iaddq	$-5,%rdx
+	iaddq	$-5,%rcx
+	jge	loop5		# if there are still more than 5 elemets
 
 Mid:	andq 	%rdx,%rdx	# len<=0
 	jle	Done		# 
