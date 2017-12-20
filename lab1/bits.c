@@ -210,15 +210,17 @@ int logicalShift(int x, int n) {
 */
 int bitCount(int x) {
   //build the mask 0x1111111111
-  int mask1 =0x11;
-  mask1 = (mask1<<8)+mask1;
-  mask1 = (mask1<<16)+mask1;
+  int mask1 = 0x11;
+  mask1 = (mask1 << 8) + 0x55;
+	mask1 = (mask1 << 8) + 0x55;
+	mask1 = (mask1 << 8) + 0x55;
   //add each 4 bit togather
   x=(x&mask1)+((x>>1)&mask1)+((x>>2)&mask1)+((x>>3)&mask1);
   //build mask2 to add each 8 bit
-  int mask2 =0x0f;
-  mask2 = (mask2<<8)+mask2;
-  mask2 = (mask2<<16)+mask2;
+  int mask2 = 0x0F;
+  mask2 = (mask2 << 8) + 0x0F;
+  mask2 = (mask2 << 8) + 0x0F;
+  mask2 = (mask2 << 8) + 0x0F;
   x=((x>>4)+x)&mask2;
   //no mask needed,since total wont beyond the 32
   x=((x>>8)+x);
